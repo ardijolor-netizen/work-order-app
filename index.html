@@ -22,6 +22,23 @@
         lokasi: document.getElementById("lokasi").value,
         deskripsi: document.getElementById("deskripsi").value
       };
+
+      try {
+        await fetch(API_URL, {
+          method: "POST",
+          mode: "no-cors", // Penting untuk menghindari error 400 / redirect Google
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(payload)
+        });
+        
+        alert("Work Order Berhasil Dibuat!");
+        document.getElementById("formOrder").reset();
+        setTimeout(loadData, 1500); // Tunggu sebentar lalu muat ulang data
+      } catch (error) {
+        alert("Terjadi kesalahan: " + error);
+      }
+    }
+
       await fetch(API_URL, { method: "POST", body: JSON.stringify(payload) });
       alert("Work Order Berhasil Dibuat!");
       document.getElementById("formOrder").reset();
@@ -30,11 +47,20 @@
 
     async function updateOrder(id, teknisi, status, catatan) {
       const payload = { action: "update", id, teknisi, status, catatan };
-      await fetch(API_URL, { method: "POST", body: JSON.stringify(payload) });
-      alert("Data berhasil diperbarui!");
-      loadData();
+      try {
+        await fetch(API_URL, {
+          method: "POST",
+          mode: "no-cors", // Penting untuk menghindari error 400 / redirect Google
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(payload)
+        });
+        
+        alert("Data berhasil diperbarui!");
+        setTimeout(loadData, 1500);
+      } catch (error) {
+        alert("Terjadi kesalahan: " + error);
+      }
     }
-
     function renderTables(data) {
       const container = document.getElementById("dataWO");
       container.innerHTML = "";
