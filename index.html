@@ -6,7 +6,7 @@
   <title>Aplikasi Work Order</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbyTEIG1xuIdOz0qwykuRrt9vvZcban2xuRcpUFyZDYa3dSfESOMksJofyr4S3r2TzxlGQ/exec; // Ganti dengan URL Web App terbaru Anda!
+    const API_URL = "https://script.google.com/macros/s/AKfycbwVEah7FyHgjy4wjcmPaEinWTtB1qiDZOavdZah8JFmXMvnHww4MTTXYuO1MEocmCGlSg/exec";
 
     async function loadData() {
       try {
@@ -18,54 +18,56 @@
       }
     }
 
-    async function submitOrder(e) {
+    // Fungsi submit menggunakan form tersembunyi (100% tembus tanpa error CORS)
+    function submitOrder(e) {
       e.preventDefault();
-      const formData = new URLSearchParams();
-      formData.append("action", "create");
-      formData.append("nama", document.getElementById("nama").value);
-      formData.append("lokasi", document.getElementById("lokasi").value);
-      formData.append("deskripsi", document.getElementById("deskripsi").value);
+      
+      const nama = document.getElementById("nama").value;
+      const lokasi = document.getElementById("lokasi").value;
+      const deskripsi = document.getElementById("deskripsi").value;
 
-      try {
-        await fetch(API_URL, {
-          method: "POST",
-          mode: "no-cors",
-          body: formData
-        });
-        
-        alert("Work Order Berhasil Dibuat!");
-        document.getElementById("formOrder").reset();
-        setTimeout(loadData, 2000); // Muat ulang tabel setelah 2 detik
-      } catch (error) {
-        alert("Terjadi kesalahan: " + error);
+      // Buat URL tujuan dengan parameter lengkap
+      const targetUrl = `${API_URL}?action=create&nama=${encodeURIComponent(nama)}&lokasi=${encodeURIComponent(lokasi)}&deskripsi=${encodeURIComponent(deskripsi)}`;
+
+      // Kirim lewat hidden iframe agar tidak diblokir browser
+      let iframe = document.getElementById("hidden_iframe");
+      if (!iframe) {
+        iframe = document.createElement("iframe");
+        iframe.id = "hidden_iframe";
+        iframe.style.display = "none";
+        document.body.appendChild(iframe);
       }
+      
+      iframe.src = targetUrl;
+
+      alert("Work Order Berhasil Dikirim!");
+      document.getElementById("formOrder").reset();
+      
+      // Tunggu 2 detik lalu muat ulang tabel otomatis
+      setTimeout(loadData, 2000);
     }
 
     async function updateOrder(id, teknisi, status, catatan) {
-      const formData = new URLSearchParams();
-      formData.append("action", "update");
-      formData.append("id", id);
-      formData.append("teknisi", teknisi);
-      formData.append("status", status);
-      formData.append("catatan", catatan);
+      const targetUrl = `${API_URL}?action=update&id=${encodeURIComponent(id)}&teknisi=${encodeURIComponent(teknisi)}&status=${encodeURIComponent(status)}&catatan=${encodeURIComponent(catatan)}`;
 
-      try {
-        await fetch(API_URL, {
-          method: "POST",
-          mode: "no-cors",
-          body: formData
-        });
-        
-        alert("Data berhasil diperbarui!");
-        setTimeout(loadData, 2000);
-      } catch (error) {
-        alert("Terjadi kesalahan: " + error);
+      let iframe = document.getElementById("hidden_iframe");
+      if (!iframe) {
+        iframe = document.createElement("iframe");
+        iframe.id = "hidden_iframe";
+        iframe.style.display = "none";
+        document.body.appendChild(iframe);
       }
+      
+      iframe.src = targetUrl;
+      alert("Perintah Update Dikirim!");
+      setTimeout(loadData, 2000);
     }
 
     function renderTables(data) {
       const container = document.getElementById("dataWO");
       container.innerHTML = "";
+      if (!Array.isArray(data)) return;
+      
       data.forEach(item => {
         container.innerHTML += `
           <tr class="border-b">
